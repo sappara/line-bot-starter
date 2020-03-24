@@ -32,9 +32,11 @@ foreach ($events as $event) {
     // スタンプを返信
     // replyStickerMessage($bot, $event->getReplyToken(), 11537, 52002745);
     // 動画を返信
-    replyVideoMessage($bot, $event->getReplyToken(),
-    'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample.mp4',
-    'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample_preview.jpg');
+    // replyVideoMessage($bot, $event->getReplyToken(),
+    // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample.mp4',
+    // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample_preview.jpg');
+    // オーディファイルを返信
+    replyAudioMessage($bot, $event->getReplyToken(), 'https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 2200);
 }
 
 
@@ -83,6 +85,16 @@ function replyStickerMessage($bot, $replyToken, $packageId, $stickerId) {
 function replyVideoMessage($bot, $replyToken, $originalContentUrl, $previewImageUrl) {
     // VideoMessageBuilderの引数は動画URL、サムネイルURL
     $response = $bot->replyMessage($replyToken, new \LINE\LINEBot\MessageBuilder\VideoMessageBuilder($originalContentUrl, $previewImageUrl));
+    if (!$response->isSucceeded()) {
+      error_log('Failed! '. $response->getHTTPStatus . ' ' . $response->getRawBody());
+    }
+  }
+
+// オーディオファイルを返信。引数はLINEBot、返信先、
+// ファイルのURL、ファイルの再生時間
+function replyAudioMessage($bot, $replyToken, $originalContentUrl, $audioLength) {
+    // AudioMessageBuilderの引数はファイルのURL、ファイルの再生時間
+    $response = $bot->replyMessage($replyToken, new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($originalContentUrl, $audioLength));
     if (!$response->isSucceeded()) {
       error_log('Failed! '. $response->getHTTPStatus . ' ' . $response->getRawBody());
     }
