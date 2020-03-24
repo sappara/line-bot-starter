@@ -46,28 +46,42 @@ foreach ($events as $event) {
     //     new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000)
     // );
       // イベントがPostbackEventクラスのインスタンスであれば
-    if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
-    // テキストを返信し次のイベントの処理へ
-    replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
-    continue;
-  }
+      // （下のPostbackEventは画面上見えないから可視化させてみる）
+  //   if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
+  //   // テキストを返信し次のイベントの処理へ
+  //   replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
+  //   continue;
+  // }
     // Buttonsテンプレートメッセージを返信
     // 引数はLINEBot、返信先、代替テキスト、画像URL、タイトル、本文、アクション(可変長引数)
-    replyButtonsTemplate($bot,
+    // replyButtonsTemplate($bot,
+    // $event->getReplyToken(),
+    // 'お天気お知らせ - 今日は天気予報は晴れです',
+    // 'https://' . $_SERVER['HTTP_HOST'] . '/imgs/template.jpg',
+    // 'お天気お知らせ',
+    // '今日は天気予報は晴れです',
+    // // タップ時、テキストをユーザーに発言させるアクション、第二引数が画面に印字される
+    // new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+    //   '明日の天気', 'tomorrow'),
+    // // タップ時、テキストをBotに送信するアクション(トークには表示されない)
+    // new LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder (
+    //   '週末の天気', 'weekend'),
+    // // タップ時、URLを開くアクション
+    // new LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder (
+    //   'Webで見る', 'http://google.jp')
+    // // ボタン＝アクションは最大４つまで
+    // );
+    // Confirmテンプレートメッセージを返信(シンプルにテキストだけ)
+    // 引数はLINEBot、返信先、代替テキスト、本文、アクション(可変長引数)
+    replyConfirmTemplate($bot,
     $event->getReplyToken(),
-    'お天気お知らせ - 今日は天気予報は晴れです',
-    'https://' . $_SERVER['HTTP_HOST'] . '/imgs/template.jpg',
-    'お天気お知らせ',
-    '今日は天気予報は晴れです',
-    // タップ時、テキストをユーザーに発言させるアクション、第二引数が画面に印字される
-    new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
-      '明日の天気', 'tomorrow'),
-    // タップ時、テキストをBotに送信するアクション(トークには表示されない)
-    new LINE\LINEBot\TemplateActionBuilder\PostbackTemplateActionBuilder (
-      '週末の天気', 'weekend'),
-    // タップ時、URLを開くアクション
+    'Webで詳しく見ますか？',
+    'Webで詳しく見ますか？',
     new LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder (
-      'Webで見る', 'http://google.jp')
+      '見る', 'http://google.jp'),
+    new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+      '見ない', 'ignore')
+    // ボタン＝アクションは最大２つまで
     );
 }
 
@@ -162,6 +176,24 @@ function replyButtonsTemplate($bot, $replyToken, $alternativeText, $imageUrl, $t
     // ButtonTemplateBuilderの引数はタイトル、本文、画像URL、アクションの配列
     // 画像とタイトルは省略可能、引数にnull
     new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ButtonTemplateBuilder ($title, $text, $imageUrl, $actionArray)
+  );
+  $response = $bot->replyMessage($replyToken, $builder);
+  if (!$response->isSucceeded()) {
+    error_log('Failed!'. $response->getHTTPStatus . ' ' . $response->getRawBody());
+  }
+}
+
+// Confirmテンプレートを返信。引数はLINEBot、返信先、代替テキスト、
+// 本文、アクション(可変長引数)
+function replyConfirmTemplate($bot, $replyToken, $alternativeText, $text, ...$actions) {
+  $actionArray = array();
+  foreach($actions as $value) {
+    array_push($actionArray, $value);
+  }
+  $builder = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder(
+    $alternativeText,
+    // Confirmテンプレートの引数はテキスト、アクションの配列
+    new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder ($text, $actionArray)
   );
   $response = $bot->replyMessage($replyToken, $builder);
   if (!$response->isSucceeded()) {
