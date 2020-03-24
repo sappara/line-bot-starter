@@ -30,7 +30,11 @@ foreach ($events as $event) {
     // 位置情報を返信
     // replyLocationMessage($bot, $event->getReplyToken(), 'LINEは', '東京都渋谷区渋谷2-21-1 ヒカリエ27階です', 35.659025, 139.703473);
     // スタンプを返信
-    replyStickerMessage($bot, $event->getReplyToken(), 11537, 52002745);
+    // replyStickerMessage($bot, $event->getReplyToken(), 11537, 52002745);
+    // 動画を返信
+    replyVideoMessage($bot, $event->getReplyToken(),
+    'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample.mp4',
+    'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample_preview.jpg');
 }
 
 
@@ -74,4 +78,13 @@ function replyStickerMessage($bot, $replyToken, $packageId, $stickerId) {
     error_log('Failed!'. $response->getHTTPStatus . ' ' . $response->getRawBody());
     }
 }
+
+// 動画を返信。引数はLINEBot、返信先、動画URL、サムネイルURL
+function replyVideoMessage($bot, $replyToken, $originalContentUrl, $previewImageUrl) {
+    // VideoMessageBuilderの引数は動画URL、サムネイルURL
+    $response = $bot->replyMessage($replyToken, new \LINE\LINEBot\MessageBuilder\VideoMessageBuilder($originalContentUrl, $previewImageUrl));
+    if (!$response->isSucceeded()) {
+      error_log('Failed! '. $response->getHTTPStatus . ' ' . $response->getRawBody());
+    }
+  }
 ?>
