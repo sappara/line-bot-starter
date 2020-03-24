@@ -36,7 +36,15 @@ foreach ($events as $event) {
     // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample.mp4',
     // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample_preview.jpg');
     // オーディファイルを返信
-    replyAudioMessage($bot, $event->getReplyToken(), 'https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 2200);
+    // replyAudioMessage($bot, $event->getReplyToken(), 'https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000);
+    // 複数のメッセージをまとめて返信
+    replyMultiMessage($bot, $event->getReplyToken(),
+        new \LINE\LINEBot\MessageBuilder\TextMessageBuilder('５個まとめて'),
+        new \LINE\LINEBot\MessageBuilder\ImageMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/imgs/original.jpg', 'https://' . $_SERVER['HTTP_HOST'] . '/imgs/preview.jpg'),
+        new \LINE\LINEBot\MessageBuilder\LocationMessageBuilder('LINEも', '東京都渋谷区渋谷2-21-1 ヒカリエ27階よ', 35.659025, 139.703473),
+        new \LINE\LINEBot\MessageBuilder\StickerMessageBuilder(11539, 52114118),
+        new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000)
+    );
 }
 
 
@@ -97,6 +105,21 @@ function replyAudioMessage($bot, $replyToken, $originalContentUrl, $audioLength)
     $response = $bot->replyMessage($replyToken, new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder($originalContentUrl, $audioLength));
     if (!$response->isSucceeded()) {
       error_log('Failed! '. $response->getHTTPStatus . ' ' . $response->getRawBody());
+    }
+  }
+
+// 複数のメッセージをまとめて返信。引数はLINEBot、
+// 返信先、メッセージ(可変長引数)
+function replyMultiMessage($bot, $replyToken, ...$msgs) {
+    // MultiMessageBuilderをインスタンス化
+    $builder = new \LINE\LINEBot\MessageBuilder\MultiMessageBuilder();
+    // ビルダーにメッセージを全て追加
+    foreach($msgs as $value) {
+      $builder->add($value);
+    }
+    $response = $bot->replyMessage($replyToken, $builder);
+    if (!$response->isSucceeded()) {
+      error_log('Failed!'. $response->getHTTPStatus . ' ' . $response->getRawBody());
     }
   }
 ?>
