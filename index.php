@@ -45,13 +45,13 @@ foreach ($events as $event) {
     //     new \LINE\LINEBot\MessageBuilder\StickerMessageBuilder(11539, 52114118),
     //     new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000)
     // );
-      // イベントがPostbackEventクラスのインスタンスであれば
-      // （下のPostbackEventは画面上見えないから可視化させてみる）
-  //   if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
-  //   // テキストを返信し次のイベントの処理へ
-  //   replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
-  //   continue;
-  // }
+    // イベントがPostbackEventクラスのインスタンスであれば
+    // （下のPostbackEventは画面上見えないから可視化させてみる）
+    //   if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
+    //   // テキストを返信し次のイベントの処理へ
+    //   replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
+    //   continue;
+    // }
     // Buttonsテンプレートメッセージを返信
     // 引数はLINEBot、返信先、代替テキスト、画像URL、タイトル、本文、アクション(可変長引数)
     // replyButtonsTemplate($bot,
@@ -73,16 +73,41 @@ foreach ($events as $event) {
     // );
     // Confirmテンプレートメッセージを返信(シンプルにテキストだけ)
     // 引数はLINEBot、返信先、代替テキスト、本文、アクション(可変長引数)
-    replyConfirmTemplate($bot,
-    $event->getReplyToken(),
-    'Webで詳しく見ますか？',
-    'Webで詳しく見ますか？',
-    new LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder (
-      '見る', 'http://google.jp'),
-    new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
-      '見ない', 'ignore')
-    // ボタン＝アクションは最大２つまで
-    );
+    // replyConfirmTemplate($bot,
+    // $event->getReplyToken(),
+    // 'Webで詳しく見ますか？',
+    // 'Webで詳しく見ますか？',
+    // new LINE\LINEBot\TemplateActionBuilder\UriTemplateActionBuilder (
+    //   '見る', 'http://google.jp'),
+    // new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+    //   '見ない', 'ignore')
+    //   // この状態では、ignoreの後に自動返信されて同じconfirmテンプレが投稿されてしまう
+    // // ボタン＝アクションは最大２つまで
+    // );
+    // Carouselテンプレートメッセージを返信
+    // ダイアログの配列
+    $columnArray = array();
+    for($i = 0; $i < 5; $i++) {
+      // アクションの配列
+      $actionArray = array();
+      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+        'ボタン' . $i . '-' . 1, 'c-' . $i . '-' . 1));
+      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+        'ボタン' . $i . '-' . 2, 'c-' . $i . '-' . 2));
+      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+        'ボタン' . $i . '-' . 3, 'c-' . $i . '-' . 3));
+      // CarouselColumnTemplateBuilderの引数はタイトル、本文、
+      // 画像URL、アクションの配列
+      $column = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder (
+        ($i + 1) . '日後の天気',
+        '晴れ',
+        'https://' . $_SERVER['HTTP_HOST'] .  '/imgs/template.jpg',
+        $actionArray
+      );
+      // 配列に追加
+      array_push($columnArray, $column);
+    }
+    replyCarouselTemplate($bot, $event->getReplyToken(),'今後の天気予報', $columnArray);
 }
 
 
@@ -194,6 +219,21 @@ function replyConfirmTemplate($bot, $replyToken, $alternativeText, $text, ...$ac
     $alternativeText,
     // Confirmテンプレートの引数はテキスト、アクションの配列
     new \LINE\LINEBot\MessageBuilder\TemplateBuilder\ConfirmTemplateBuilder ($text, $actionArray)
+  );
+  $response = $bot->replyMessage($replyToken, $builder);
+  if (!$response->isSucceeded()) {
+    error_log('Failed!'. $response->getHTTPStatus . ' ' . $response->getRawBody());
+  }
+}
+
+// Carouselテンプレートを返信。引数はLINEBot、返信先、代替テキスト、
+// ダイアログの配列
+function replyCarouselTemplate($bot, $replyToken, $alternativeText, $columnArray) {
+  $builder = new \LINE\LINEBot\MessageBuilder\TemplateMessageBuilder(
+  $alternativeText,
+  // Carouselテンプレートの引数はダイアログの配列
+  new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder (
+   $columnArray)
   );
   $response = $bot->replyMessage($replyToken, $builder);
   if (!$response->isSucceeded()) {
