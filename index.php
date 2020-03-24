@@ -23,20 +23,27 @@ $events = $bot->parseEventRequest(file_get_contents('php://input'), $signature);
 foreach ($events as $event) {
     // テキストを返信
     // $bot->replyText($event->getReplyToken(), 'TextMessage');
+    // 
     // テキストを返信、その２
     // replyTextMessage($bot, $event->getReplyToken(), 'こんにちは');
+    // 
     // 画像を返信
     // replyImageMessage($bot, $event->getReplyToken(), 'https://' . $_SERVER['HTTP_HOST'] . '/imgs/original.jpg', 'https://' . $_SERVER['HTTP_HOST'] . '/imgs/preview.jpg');
+    // 
     // 位置情報を返信
     // replyLocationMessage($bot, $event->getReplyToken(), 'LINEは', '東京都渋谷区渋谷2-21-1 ヒカリエ27階です', 35.659025, 139.703473);
+    // 
     // スタンプを返信
     // replyStickerMessage($bot, $event->getReplyToken(), 11537, 52002745);
+    // 
     // 動画を返信
     // replyVideoMessage($bot, $event->getReplyToken(),
     // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample.mp4',
     // 'https://' . $_SERVER['HTTP_HOST'] . '/videos/sample_preview.jpg');
+    // 
     // オーディファイルを返信
     // replyAudioMessage($bot, $event->getReplyToken(), 'https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000);
+    // 
     // 複数のメッセージをまとめて返信
     // replyMultiMessage($bot, $event->getReplyToken(),
     //     new \LINE\LINEBot\MessageBuilder\TextMessageBuilder('５個まとめて'),
@@ -45,6 +52,7 @@ foreach ($events as $event) {
     //     new \LINE\LINEBot\MessageBuilder\StickerMessageBuilder(11539, 52114118),
     //     new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000)
     // );
+    // 
     // イベントがPostbackEventクラスのインスタンスであれば
     // （下のPostbackEventは画面上見えないから可視化させてみる）
     //   if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
@@ -52,6 +60,7 @@ foreach ($events as $event) {
     //   replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
     //   continue;
     // }
+    // 
     // Buttonsテンプレートメッセージを返信
     // 引数はLINEBot、返信先、代替テキスト、画像URL、タイトル、本文、アクション(可変長引数)
     // replyButtonsTemplate($bot,
@@ -71,6 +80,7 @@ foreach ($events as $event) {
     //   'Webで見る', 'http://google.jp')
     // // ボタン＝アクションは最大４つまで
     // );
+    // 
     // Confirmテンプレートメッセージを返信(シンプルにテキストだけ)
     // 引数はLINEBot、返信先、代替テキスト、本文、アクション(可変長引数)
     // replyConfirmTemplate($bot,
@@ -84,30 +94,66 @@ foreach ($events as $event) {
     //   // この状態では、ignoreの後に自動返信されて同じconfirmテンプレが投稿されてしまう
     // // ボタン＝アクションは最大２つまで
     // );
+    // 
     // Carouselテンプレートメッセージを返信
     // ダイアログの配列
-    $columnArray = array();
-    for($i = 0; $i < 5; $i++) {
-      // アクションの配列
-      $actionArray = array();
-      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
-        'ボタン' . $i . '-' . 1, 'c-' . $i . '-' . 1));
-      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
-        'ボタン' . $i . '-' . 2, 'c-' . $i . '-' . 2));
-      array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
-        'ボタン' . $i . '-' . 3, 'c-' . $i . '-' . 3));
-      // CarouselColumnTemplateBuilderの引数はタイトル、本文、
-      // 画像URL、アクションの配列
-      $column = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder (
-        ($i + 1) . '日後の天気',
-        '晴れ',
-        'https://' . $_SERVER['HTTP_HOST'] .  '/imgs/template.jpg',
-        $actionArray
-      );
-      // 配列に追加
-      array_push($columnArray, $column);
+    // $columnArray = array();
+    // for($i = 0; $i < 5; $i++) {
+    //   // アクションの配列
+    //   $actionArray = array();
+    //   array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+    //     'ボタン' . $i . '-' . 1, 'c-' . $i . '-' . 1));
+    //   array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+    //     'ボタン' . $i . '-' . 2, 'c-' . $i . '-' . 2));
+    //   array_push($actionArray, new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
+    //     'ボタン' . $i . '-' . 3, 'c-' . $i . '-' . 3));
+    //   // CarouselColumnTemplateBuilderの引数はタイトル、本文、画像URL、アクションの配列
+    //   // 以下の部分が画面に印字される
+    //   $column = new \LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder (
+    //     ($i + 1) . '日後の天気',
+    //     '晴れ',
+    //     'https://' . $_SERVER['HTTP_HOST'] .  '/imgs/template.jpg',
+    //     $actionArray
+    //   );
+    //   // 配列に追加
+    //   array_push($columnArray, $column);
+    // }
+    // replyCarouselTemplate($bot, $event->getReplyToken(),'今後の天気予報', $columnArray);
+    // // ボタン押す→c-1-1など印字される→再び同じカルーセルが自動送信されるの繰り返し
+    // // ボタン＝アクションは最大３つまで。Columnは５つまでカールセールできる
+    // 
+    // ここまではBotからユーザーへの自動返信のためのコード
+    // 
+    // ここからはユーザーからBotへのアップロード
+    // テキストはgetText()で簡単。画像/動画/音声は複雑。
+    // 以下は画僧をアップロード→HEROKU上に保存
+    // 
+    // ユーザーから送信された画像ファイルを取得し、サーバーに保存する
+    // イベントがImageMessage型であれば
+    if ($event instanceof \LINE\LINEBot\Event\MessageEvent\ImageMessage) {
+      // イベントのコンテンツを取得
+      $content = $bot->getMessageContent($event->getMessageId());
+      // コンテンツヘッダーを取得
+      $headers = $content->getHeaders();
+      // 画像の保存先フォルダ
+      $directory_path = 'tmp';
+      // 保存するファイル名
+      $filename = uniqid();
+      // コンテンツの種類を取得
+      $extension = explode('/', $headers['Content-Type'])[1];
+      // 保存先フォルダが存在しなければ
+      if(!file_exists($directory_path)) {
+        // フォルダを作成
+        if(mkdir($directory_path, 0777, true)) {
+          // 権限を変更
+          chmod($directory_path, 0777);
+        }
+      }
+      // 保存先フォルダにコンテンツを保存
+      file_put_contents($directory_path . '/' . $filename . '.' . $extension, $content->getRawBody());
+      // 保存したファイルのURLを返信
+      replyTextMessage($bot, $event->getReplyToken(), 'http://' . $_SERVER['HTTP_HOST'] . '/' . $directory_path. '/' . $filename . '.' . $extension);
     }
-    replyCarouselTemplate($bot, $event->getReplyToken(),'今後の天気予報', $columnArray);
 }
 
 
