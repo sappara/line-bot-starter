@@ -45,6 +45,12 @@ foreach ($events as $event) {
     //     new \LINE\LINEBot\MessageBuilder\StickerMessageBuilder(11539, 52114118),
     //     new \LINE\LINEBot\MessageBuilder\AudioMessageBuilder('https://' . $_SERVER['HTTP_HOST'] . '/audios/sample.m4a', 22000)
     // );
+      // イベントがPostbackEventクラスのインスタンスであれば
+    if ($event instanceof \LINE\LINEBot\Event\PostbackEvent) {
+    // テキストを返信し次のイベントの処理へ
+    replyTextMessage($bot, $event->getReplyToken(), 'Postback受信「' . $event->getPostbackData() . '」');
+    continue;
+  }
     // Buttonsテンプレートメッセージを返信
     // 引数はLINEBot、返信先、代替テキスト、画像URL、タイトル、本文、アクション(可変長引数)
     replyButtonsTemplate($bot,
@@ -53,7 +59,7 @@ foreach ($events as $event) {
     'https://' . $_SERVER['HTTP_HOST'] . '/imgs/template.jpg',
     'お天気お知らせ',
     '今日は天気予報は晴れです',
-    // タップ時、テキストをユーザーに発言させるアクション
+    // タップ時、テキストをユーザーに発言させるアクション、第二引数が画面に印字される
     new LINE\LINEBot\TemplateActionBuilder\MessageTemplateActionBuilder (
       '明日の天気', 'tomorrow'),
     // タップ時、テキストをBotに送信するアクション(トークには表示されない)
